@@ -1,0 +1,15 @@
+@mixin full-image($image) {
+  background: url($image) no-repeat center center scroll;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+  height: 100%;
+  width: 100%;
+}
+
+.text-vertical-center {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
