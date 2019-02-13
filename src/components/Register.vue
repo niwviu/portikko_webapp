@@ -25,20 +25,40 @@
                 <v-toolbar-title>{{ title[language] }}</v-toolbar-title>
               </v-toolbar>
               <v-card-text>
-                <form>
-                  <v-text-field :label="nameLabel[language]"></v-text-field>
-                  <v-text-field :label="emailLabel[language]"></v-text-field>
+                <form @submit.prevent="register">
                   <v-text-field
+                    v-model="user.name"
+                    :label="nameLabel[language]"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="user.email"
+                    v-validate="'required|email'"
+                    :error-messages="errors.collect('email')"
+                    data-vv-name="email"
+                    :label="emailLabel[language]"
+                  ></v-text-field>
+                  <v-text-field
+                    ref="password"
+                    v-model="user.password"
+                    v-validate="'required|min:6'"
+                    data-vv-name="password"
                     type="password"
+                    :error-messages="errors.collect('password')"
                     :label="passwordLabel[language]"
                   ></v-text-field>
                   <v-text-field
+                    v-model="confirmedPassword"
+                    data-vv-name="confirmed"
                     type="password"
+                    v-validate="'required|min:6|confirmed:password'"
+                    :error-messages="errors.collect('confirmed')"
                     :label="passwordConfirmedLabel[language]"
                   ></v-text-field>
                   <v-btn
                     block
                     class="accent"
+                    type="submit"
+                    :disabled="formSent"
                   >
                     {{buttonText[language]}}
                   </v-btn>
@@ -62,9 +82,34 @@ export default {
     emailLabel: { en: 'Email', es: 'Correo electrónico' },
     passwordLabel: { en: 'Password', es: 'Contraseña' },
     passwordConfirmedLabel: { en: 'Confirmed password', es: 'Confirmar contraseña' },
+    user: {
+      email: '', name: '', password: '',
+    },
+    confirmedPassword: '',
+    postErrorMessage: { en: 'User already exists.', es: 'El correo electrónico ya ha sido registrado.' },
+    formSent: false,
   }),
   computed: {
     ...mapState(['language']),
+  },
+  methods: {
+    register() {
+      this.$validator.validateAll().then(result => {
+        if (result) {
+          this.formSent = true;
+          this.axios.post(`${process.env.VUE_APP_API_URI}/api/register`, this.user).then(response => {
+            if (response.data) {
+              // TODO: Show success message and redirect to login.
+              this.formSent = false;
+            }
+          }).catch(error => {
+            if (error.response) {
+              this.formSent = false;
+            }
+          });
+        }
+      });
+    },
   },
 };
 </script>
