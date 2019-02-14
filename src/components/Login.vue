@@ -25,12 +25,28 @@
                 <v-toolbar-title>{{ title[language] }}</v-toolbar-title>
               </v-toolbar>
               <v-card-text>
-                <form>
-                  <v-text-field :label="emailLabel[language]"></v-text-field>
-                  <v-text-field :label="passwordLabel[language]"></v-text-field>
+                <form @submit.prevent="login">
+                  <v-text-field
+                    v-model="user.email"
+                    v-validate="'required|email'"
+                    :error-messages="errors.collect('email')"
+                    data-vv-name="email"
+                    :label="emailLabel[language]"
+                  ></v-text-field>
+                  <v-text-field
+                    ref="password"
+                    v-model="user.password"
+                    v-validate="'required|min:6'"
+                    data-vv-name="password"
+                    type="password"
+                    :error-messages="errors.collect('password')"
+                    :label="passwordLabel[language]"
+                  ></v-text-field>
                   <v-btn
                     block
                     class="accent"
+                    type="submit"
+                    :disabled="formSent"
                   >
                     {{buttonText[language]}}
                   </v-btn>
@@ -52,9 +68,21 @@ export default {
     buttonText: { en: 'Login', es: 'Entrar' },
     emailLabel: { en: 'Email', es: 'Correo electrónico' },
     passwordLabel: { en: 'Password', es: 'Contraseña' },
+    user: { email: '', password: '' },
+    formSent: false,
   }),
   computed: {
     ...mapState(['language']),
+  },
+  methods: {
+    login() {
+      this.$validator.validateAll().then((result) => {
+        if (result) {
+          this.formSent = true;
+          console.log('works');
+        }
+      });
+    },
   },
 };
 </script>
