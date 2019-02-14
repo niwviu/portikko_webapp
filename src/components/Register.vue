@@ -73,6 +73,7 @@
 </template>
 <script>
 import { mapState } from 'vuex';
+import vuetifyToast from 'vuetify-toast';
 
 export default {
   data: () => ({
@@ -86,7 +87,7 @@ export default {
       email: '', name: '', password: '',
     },
     confirmedPassword: '',
-    postErrorMessage: { en: 'User already exists.', es: 'El correo electrónico ya ha sido registrado.' },
+    successMessage: { en: 'Account created successfully', es: 'Cuenta creada con éxito.' },
     formSent: false,
   }),
   computed: {
@@ -98,9 +99,15 @@ export default {
         if (result) {
           this.formSent = true;
           this.axios.post(`${process.env.VUE_APP_API_URI}/api/register`, this.user).then(response => {
-            if (response.data) {
-              // TODO: Show success message and redirect to login.
+            if (response.status === 200) {
               this.formSent = false;
+              vuetifyToast.show({
+                text: this.successMessage[this.language],
+                icon: 'check',
+                color: 'success',
+                timeout: 4000,
+                dismissible: true,
+              });
             }
           }).catch(error => {
             if (error.response) {
