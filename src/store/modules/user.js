@@ -11,10 +11,12 @@ export default {
     },
     logout: state => {
       state.isLoggedIn = false;
+      localStorage.removeItem('vuex');
+      localStorage.clear();
     },
   },
   actions: {
-    login: context => context.dispatch('login'),
-    logout: context => context.dispatch('logout'),
+    login: context => context.commit('login'),
+    logout: context => context.commit('logout'),
   },
 };

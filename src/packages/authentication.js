@@ -1,24 +1,31 @@
+import store from '../store';
+
 export default function (Vue) {
   const vue = Vue;
   vue.auth = {
     getToken() {
-      // TODO: Add token expiration
       const token = localStorage.getItem('token');
+      const expiration = localStorage.getItem('expiration');
 
-      if (!token) {
+      if (!token || !expiration) {
         this.destroyToken();
         return null;
       }
 
-      // TODO: Validate token expiration
+      if (Date.now() > parseInt(expiration, 10)) {
+        this.destroyToken();
+        return null;
+      }
 
       return token;
     },
-    setToken(token) {
+    setToken(token, expiration) {
       localStorage.setItem('token', token);
-      // TODO: Set token expiration
+      localStorage.setItem('expiration', expiration);
     },
-    destroyToken() {},
+    destroyToken() {
+      store.dispatch('user/logout', null, { root: true });
+    },
     isLoggedIn() {
       if (this.getToken()) {
         return true;
@@ -27,7 +34,7 @@ export default function (Vue) {
     },
   };
   Object.defineProperties(Vue.prototype, {
-    $auth: {
+    $authentication: {
       get: () => Vue.auth,
     },
   });
