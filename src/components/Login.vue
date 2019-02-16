@@ -25,7 +25,7 @@
                 <v-toolbar-title>{{ title[language] }}</v-toolbar-title>
               </v-toolbar>
               <v-card-text>
-                <form @submit.prevent="login">
+                <form @submit.prevent="postLogin">
                   <v-text-field
                     v-model="user.email"
                     v-validate="'required|email'"
@@ -60,7 +60,9 @@
   </div>
 </template>
 <script>
-import { mapState } from 'vuex';
+import { mapActions, mapState } from 'vuex';
+import vuetifyToast from 'vuetify-toast';
+import base64 from 'base-64';
 
 export default {
   data: () => ({
@@ -70,16 +72,50 @@ export default {
     passwordLabel: { en: 'Password', es: 'Contraseña' },
     user: { email: '', password: '' },
     formSent: false,
+    errorMessage: { en: 'Please verify your credentials.', es: 'Por favor verifique sus credenciales.' },
   }),
   computed: {
     ...mapState(['language']),
   },
   methods: {
-    login() {
-      this.$validator.validateAll().then((result) => {
+    ...mapActions('user', {
+      login: 'login',
+    }),
+    postLogin() {
+      this.$validator.validateAll().then(result => {
         if (result) {
           this.formSent = true;
-          console.log('works');
+
+          const body = `username=${this.user.email}&password=${this.user.password}&grant_type=password`;
+          const clientCredentials = base64.encode(`${process.env.VUE_APP_CLIENT_ID}:${process.env.VUE_APP_CLIENT_SECRET}`);
+          const config = {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Basic ${clientCredentials}`,
+            },
+          };
+
+          this.axios.post(`${process.env.VUE_APP_API_URI}/auth/token`, body, config).then(response => {
+            if (response.status === 200) {
+              const time = this.$moment().utc().add(response.data.expires_in, 'seconds');
+              const expiration = this.$moment(time).toDate().getTime();
+              this.$authentication.setToken(response.data.access_token, expiration);
+              this.login();
+              this.$router.push('/');
+            }
+          }).catch(error => {
+            if (error.response) {
+              console.log(error.response);
+              this.formSent = false;
+              vuetifyToast.show({
+                text: this.errorMessage[this.language],
+                icon: 'error',
+                color: 'error',
+                timeout: 4000,
+                dismissible: true,
+              });
+            }
+          });
         }
       });
     },

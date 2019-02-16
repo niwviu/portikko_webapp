@@ -3,17 +3,21 @@ import axios from 'axios';
 import vuetifyToast from 'vuetify-toast';
 import VueAxios from 'vue-axios';
 import VeeValidate, { Validator } from 'vee-validate';
+import VueMoment from 'vue-moment';
 import es from 'vee-validate/dist/locale/es';
 import './plugins/vuetify';
 import App from './App.vue';
 import router from './router';
 import store from './store';
+import Authentication from './packages/authentication';
 import './stylus/main.styl';
 
 Vue.use(VeeValidate, { locale: 'es', dictionary: { es } });
 Validator.localize('es');
 Vue.use(VueAxios, axios);
 Vue.use(vuetifyToast);
+Vue.use(VueMoment);
+Vue.use(Authentication);
 
 Vue.config.productionTip = false;
 
@@ -33,13 +37,15 @@ axios.interceptors.response.use(
         dismissible: true,
       });
     } else if (error.response.status === 400) {
-      vuetifyToast.show({
-        text: error.response.data.error[store.state.language],
-        icon: 'error',
-        color: 'error',
-        timeout: 8000,
-        dismissible: true,
-      });
+      if (error.response.data.error[store.state.language]) {
+        vuetifyToast.show({
+          text: error.response.data.error[store.state.language],
+          icon: 'error',
+          color: 'error',
+          timeout: 8000,
+          dismissible: true,
+        });
+      }
     }
     return Promise.reject(error);
   },
