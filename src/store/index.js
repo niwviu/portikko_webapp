@@ -14,7 +14,14 @@ export default new Vuex.Store({
   modules: { user },
   state: {
     language: 'es',
+    drawer: true,
   },
-  mutations: {},
-  actions: {},
+  mutations: {
+    openOrCloseDrawer: state => {
+      state.drawer = !state.drawer;
+    },
+  },
+  actions: {
+    openOrCloseDrawer: context => context.commit('openOrCloseDrawer'),
+  },
 });
