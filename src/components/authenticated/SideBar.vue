@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     v-if="isLoggedIn"
-    v-model="drawer"
+    :value="drawer"
     persistent
     enable-resize-watcher
     fixed
