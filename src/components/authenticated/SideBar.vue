@@ -66,7 +66,7 @@ export default {
       user: 'user',
     }),
     username() {
-      return `${this.user.name ? this.user.name : ''} ${this.user.surnames ? this.user.surnames : ''}`;
+      return `${(this.user && this.user.name) ? this.user.name : ''} ${(this.user && this.user.surnames) ? this.user.surnames : ''}`;
     },
   },
 };
