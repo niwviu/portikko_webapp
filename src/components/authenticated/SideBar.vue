@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     v-if="isLoggedIn"
-    v-model="drawer"
+    :value="drawer"
     persistent
     enable-resize-watcher
     fixed
@@ -28,9 +28,11 @@
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-title class="subheading">
-                  username
+                  {{ username }}
                 </v-list-tile-title>
-                <v-list-tile-title class="body-1">email@gmail.com</v-list-tile-title>
+                <v-list-tile-title class="body-1">
+                  {{ user ? user.email : '' }}
+                </v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
           </v-list>
@@ -61,7 +63,11 @@ export default {
     ...mapState(['drawer']),
     ...mapState('user', {
       isLoggedIn: 'isLoggedIn',
+      user: 'user',
     }),
+    username() {
+      return `${this.user.name ? this.user.name : ''} ${this.user.surnames ? this.user.surnames : ''}`;
+    },
   },
 };
 </script>

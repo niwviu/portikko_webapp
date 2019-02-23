@@ -80,6 +80,7 @@ export default {
   methods: {
     ...mapActions('user', {
       login: 'login',
+      setUser: 'setUser',
     }),
     postLogin() {
       this.$validator.validateAll().then(result => {
@@ -95,17 +96,17 @@ export default {
             },
           };
 
-          this.axios.post(`${process.env.VUE_APP_API_URI}/auth/token`, body, config).then(response => {
+          this.axios.post('/auth/token', body, config).then(async response => {
             if (response.status === 200) {
               const time = this.$moment().utc().add(response.data.expires_in, 'seconds');
               const expiration = this.$moment(time).toDate().getTime();
               this.$authentication.setToken(response.data.access_token, expiration);
-              this.login();
+              await this.login();
+              await this.getAuthUser();
               this.$router.push('/');
             }
           }).catch(error => {
             if (error.response) {
-              console.log(error.response);
               this.formSent = false;
               vuetifyToast.show({
                 text: this.errorMessage[this.language],
@@ -116,6 +117,17 @@ export default {
               });
             }
           });
+        }
+      });
+    },
+    getAuthUser() {
+      this.axios.get('/profile').then(response => {
+        if (response) {
+          this.setUser(response.data);
+        }
+      }).catch(error => {
+        if (error.response) {
+          console.log(error.response);
         }
       });
     },
