@@ -98,7 +98,7 @@ export default {
       this.$validator.validateAll().then(result => {
         if (result) {
           this.formSent = true;
-          this.axios.post(`${process.env.VUE_APP_API_URI}/register`, this.user).then(response => {
+          this.axios.post('/register', this.user).then(response => {
             if (response.status === 200) {
               this.formSent = false;
               vuetifyToast.show({
@@ -108,6 +108,7 @@ export default {
                 timeout: 4000,
                 dismissible: true,
               });
+              this.$router.push('/login');
             }
           }).catch(error => {
             if (error.response) {

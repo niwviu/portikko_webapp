@@ -21,6 +21,24 @@ Vue.use(Authentication);
 
 Vue.config.productionTip = false;
 
+axios.defaults.baseURL = process.env.VUE_APP_API_URI;
+
+// Request interceptor
+axios.interceptors.request.use(
+  config => {
+    const expiration = localStorage.getItem('expiration');
+    if (Vue.authentication.isLoggedIn()) {
+      config.headers.Authorization = `Bearer ${Vue.authentication.getToken()}`;
+      return config;
+    }
+    if (Date.now() > parseInt(expiration, 10)) {
+      return router.push('/login');
+    }
+    return config;
+  },
+  error => Promise.reject(error),
+);
+
 // Response interceptor
 axios.interceptors.response.use(
   response => response,

@@ -2,7 +2,7 @@ import store from '../store';
 
 export default function (Vue) {
   const vue = Vue;
-  vue.auth = {
+  vue.authentication = {
     getToken() {
       const token = localStorage.getItem('token');
       const expiration = localStorage.getItem('expiration');
@@ -35,7 +35,7 @@ export default function (Vue) {
   };
   Object.defineProperties(Vue.prototype, {
     $authentication: {
-      get: () => Vue.auth,
+      get: () => Vue.authentication,
     },
   });
 }
